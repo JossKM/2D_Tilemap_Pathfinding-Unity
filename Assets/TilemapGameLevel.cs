@@ -5,7 +5,7 @@ public class TilemapGameLevel : MonoBehaviour
 {
     //The tilemap data to work on
     private Tilemap map;
- 
+
     // The tile asset reference to be used when spawning floor tiles
     public TileBase floorTile;
 
@@ -13,8 +13,8 @@ public class TilemapGameLevel : MonoBehaviour
     public Vector2Int mapSize = new Vector2Int(10, 10);
 
     // When randomly generating map, this is the probability that any tile will be a generated as a walkable floor tile
-    public float chanceToSpawnFloor = 0.75f; 
-    
+    public float chanceToSpawnFloor = 0.75f;
+
     public TileBase GetTile(int x, int y)
     {
         return map.GetTile(new Vector3Int(x, y, 0));
@@ -120,7 +120,7 @@ public class TilemapGameLevel : MonoBehaviour
     }
 
 
-        void Update()
+    void Update()
     {
         // Get the current dimensions of the tilemap
         BoundsInt boundaries = map.cellBounds;
@@ -135,7 +135,7 @@ public class TilemapGameLevel : MonoBehaviour
                 {
                     continue;
                 }
-                
+
                 DebugDrawTileConnections(x, y);
                 DebugDrawTileInfo(x, y);
             }
