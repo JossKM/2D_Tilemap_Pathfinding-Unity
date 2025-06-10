@@ -1,28 +1,50 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Tilemaps;
 
 public class TilemapGameLevel : MonoBehaviour
 {
     //The tilemap data to work on
-    private Tilemap map;
+    private Tilemap tilemap;
 
     // The tile asset reference to be used when spawning floor tiles
     public TileBase floorTile;
 
-    // When randomly generating map, this is its dimensions
-    public Vector2Int mapSize = new Vector2Int(10, 10);
+    // When randomly generating map, this is how many tiles it takes up
+    public Vector2Int mapSizeTiles = new Vector2Int(10, 10);
+
+    public UnityEvent onTilemapUpdated;
 
     // When randomly generating map, this is the probability that any tile will be a generated as a walkable floor tile
-    public float chanceToSpawnFloor = 0.75f;
+    public float floorSpawnThreshold = 0.75f;
+    public float perlinScale = 0.1f;
+
+    public enum RandomizationType
+    { 
+        Uniform,
+        Perlin
+    }
+
+    public RandomizationType randomizationType = RandomizationType.Perlin;
 
     public TileBase GetTile(int x, int y)
     {
-        return map.GetTile(new Vector3Int(x, y, 0));
+        return tilemap.GetTile(new Vector3Int(x, y, 0));
+    }
+
+    public Vector3 GetTileCenter(int x, int y)
+    {
+        return tilemap.GetCellCenterWorld(new Vector3Int(x, y, 0));
+    }
+
+    public BoundsInt GetBounds()
+    {
+        return tilemap.cellBounds;
     }
 
     public void SetChanceToSpawnFloor(float chance)
     {
-        chanceToSpawnFloor = chance;
+        floorSpawnThreshold = chance;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -30,7 +52,7 @@ public class TilemapGameLevel : MonoBehaviour
     {
         //Search the scene for any Tilemap object.
         //If there are more than one we will not know which one this is, so make sure there is only one.
-        map = FindAnyObjectByType<Tilemap>();
+        tilemap = FindAnyObjectByType<Tilemap>();
 
         GenerateMap();
     }
@@ -43,7 +65,7 @@ public class TilemapGameLevel : MonoBehaviour
 
     public void GenerateMap()
     {
-        GenerateMap(map, mapSize.x, mapSize.y);
+        GenerateMap(tilemap, mapSizeTiles.x, mapSizeTiles.y);
     }
 
     public void GenerateMap(Tilemap map, int width, int height)
@@ -54,12 +76,25 @@ public class TilemapGameLevel : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                if (Random.value <= chanceToSpawnFloor)
+                if (TileRandomizationFunction(x,y) <= floorSpawnThreshold)
                 {
                     map.SetTile(new Vector3Int(x, y, 0), floorTile);
                 }
             }
         }
+
+        onTilemapUpdated.Invoke();
+    }
+
+    public float TileRandomizationFunction(int x, int y)
+    {
+        switch (randomizationType)
+        { 
+        case(RandomizationType.Uniform): return Random.value;
+        case (RandomizationType.Perlin): return Mathf.PerlinNoise(Time.time + 1 + (x * perlinScale), y * perlinScale);
+        }
+
+        return 0;
     }
 
     //Draw connections to a particular tile
@@ -72,7 +107,7 @@ public class TilemapGameLevel : MonoBehaviour
             throw new System.Exception("Tried to draw connections to a null tile at: " + x + ", " + y);
         }
 
-        Vector3 centerPos = map.GetCellCenterWorld(new Vector3Int(x, y, 0));
+        Vector3 centerPos = tilemap.GetCellCenterWorld(new Vector3Int(x, y, 0));
         //Up
         if (IsTraversible(x, y + 1))
         {
@@ -108,13 +143,13 @@ public class TilemapGameLevel : MonoBehaviour
 
             //Due to the Asset settings, GameObject prefabs are generated along with the tiles. The prefab used is "Assets/LabelCanvas" 
             //We can use references to the generated GameObject for the current tile to draw relevant information on it or change its color etc.
-            GameObject instantiated = map.GetInstantiatedObject(tileCoord);
+            GameObject instantiated = tilemap.GetInstantiatedObject(tileCoord);
 
             if (instantiated != null)
             {
                 //Draw coordinates
                 instantiated.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = new Vector2Int(x, y).ToString();
-                instantiated.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 1, 0, 0.5f + Mathf.Sin(Time.time * 2) * 0.5f);
+             //   instantiated.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 1, 0, 0.5f + Mathf.Sin(Time.time * 2) * 0.5f);
             }
         }
     }
@@ -123,7 +158,7 @@ public class TilemapGameLevel : MonoBehaviour
     void Update()
     {
         // Get the current dimensions of the tilemap
-        BoundsInt boundaries = map.cellBounds;
+        BoundsInt boundaries = tilemap.cellBounds;
 
         //Iterate through each coordinate, by column, then by row, starting from 0,0 then 0,1, then 0,2 etc.
         for (int x = boundaries.xMin; x < boundaries.xMax; x++)
@@ -136,8 +171,8 @@ public class TilemapGameLevel : MonoBehaviour
                     continue;
                 }
 
-                DebugDrawTileConnections(x, y);
-                DebugDrawTileInfo(x, y);
+               // DebugDrawTileConnections(x, y);
+                //DebugDrawTileInfo(x, y);
             }
         }
     }
