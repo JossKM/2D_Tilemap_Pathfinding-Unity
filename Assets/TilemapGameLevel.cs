@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Tilemaps;
@@ -40,6 +41,39 @@ public class TilemapGameLevel : MonoBehaviour
     public BoundsInt GetBounds()
     {
         return tilemap.cellBounds;
+    }
+
+    public float GetCostToEnterTile(int x, int y)
+    {
+        return 1;
+    }
+
+    public List<Vector2Int> GetTraversibleTilesAdjacentTo(int x, int y)
+    {
+        List<Vector2Int> adjacentTiles = new List<Vector2Int>();
+
+        //Up
+        if (IsTraversible(x, y + 1))
+        {
+            adjacentTiles.Add(new Vector2Int(x, y + 1));
+        }
+        //Down
+        if (IsTraversible(x, y - 1))
+        {
+            adjacentTiles.Add(new Vector2Int(x, y - 1));
+        }
+        //Left
+        if (IsTraversible(x - 1, y))
+        {
+            adjacentTiles.Add(new Vector2Int(x - 1, y));
+        }
+        //Right
+        if (IsTraversible(x + 1, y))
+        {
+            adjacentTiles.Add(new Vector2Int(x + 1, y));
+        }
+
+        return adjacentTiles;
     }
 
     public void SetChanceToSpawnFloor(float chance)
@@ -153,7 +187,6 @@ public class TilemapGameLevel : MonoBehaviour
             }
         }
     }
-
 
     void Update()
     {

@@ -699,6 +699,7 @@ GameObject:
   - component: {fileID: 458221915}
   - component: {fileID: 458221919}
   - component: {fileID: 458221918}
+  - component: {fileID: 458221920}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -843,6 +844,18 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &458221920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 458221914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65f4503d14a128f49b308522b814cdc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1022,7 +1035,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65f4503d14a128f49b308522b814cdc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  level: {fileID: 458221917}
 --- !u!4 &560659535
 Transform:
   m_ObjectHideFlags: 0

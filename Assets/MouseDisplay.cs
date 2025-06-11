@@ -37,6 +37,14 @@ public class MouseDisplay : MonoBehaviour
         }
 
         TextMeshGraphic.text += "\n" + tilePosX + "," + tilePosY; 
+
+        if(Input.GetMouseButton(0))
+        {
+            FindAnyObjectByType<MyPathfindingRunner>().FindPathToDebug(
+                Vector2Int.zero, 
+                new Vector2Int(tilePosX, tilePosY)
+                );
+        }
     }
 
 }
