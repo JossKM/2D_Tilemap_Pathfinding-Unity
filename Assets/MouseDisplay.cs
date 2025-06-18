@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class MouseDisplay : MonoBehaviour
-{   
+{
     //The tilemap data to work on
     private Tilemap map;
     public TMPro.TextMeshProUGUI TextMeshGraphic;
@@ -21,14 +21,13 @@ public class MouseDisplay : MonoBehaviour
         Vector3 worldSpacePositionOfMouse = Camera.main.ScreenToWorldPoint(pixelPos);
         worldSpacePositionOfMouse.z = 0;
 
-
         int tilePosX = (int)worldSpacePositionOfMouse.x;
         int tilePosY = (int)worldSpacePositionOfMouse.y;
         Vector3Int tilePos = new Vector3Int(tilePosX, tilePosY, 0); 
         transform.position = map.GetCellCenterWorld(tilePos);
 
         TileBase tile = map.GetTile(tilePos);
-        if(tile != null )
+        if(tile != null)
         {
             TextMeshGraphic.text = tile.name;
         } else
@@ -36,14 +35,20 @@ public class MouseDisplay : MonoBehaviour
             TextMeshGraphic.text = "empty";
         }
 
-        TextMeshGraphic.text += "\n" + tilePosX + "," + tilePosY; 
+        TextMeshGraphic.text += "\n" + tilePosX + "," + tilePosY;
 
-        if(Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(1))
         {
-            FindAnyObjectByType<MyPathfindingRunner>().FindPathToDebug(
-                Vector2Int.zero, 
-                new Vector2Int(tilePosX, tilePosY)
-                );
+            FindAnyObjectByType<Pathfinder>().start = new Vector2Int(tilePosX, tilePosY);
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if(tile != null)
+            {
+                FindAnyObjectByType<Pathfinder>().end = new Vector2Int(tilePosX, tilePosY);
+                FindAnyObjectByType<Pathfinder>().FindPathDebugging();
+            }
         }
     }
 

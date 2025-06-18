@@ -164,49 +164,49 @@ public class TilemapGameLevel : MonoBehaviour
         }
     }
 
-    public void DebugDrawTileInfo(int x, int y)
-    {
-        //Get the tile at this coordinate
-        TileBase tile = GetTile(x, y);
+    //public void DebugDrawTileInfo(int x, int y)
+    //{
+    //    //Get the tile at this coordinate
+    //    TileBase tile = GetTile(x, y);
 
-        //Some methods require Vector3Int. We will use 0 for z and just work on the x-y plane
-        Vector3Int tileCoord = new Vector3Int(x, y, 0);
-        if (tile != null)
-        {
-            // Debug.Log(x + "," + y + " - " + tile.GetType().Name);
+    //    //Some methods require Vector3Int. We will use 0 for z and just work on the x-y plane
+    //    Vector3Int tileCoord = new Vector3Int(x, y, 0);
+    //    if (tile != null)
+    //    {
+    //        // Debug.Log(x + "," + y + " - " + tile.GetType().Name);
 
-            //Due to the Asset settings, GameObject prefabs are generated along with the tiles. The prefab used is "Assets/LabelCanvas" 
-            //We can use references to the generated GameObject for the current tile to draw relevant information on it or change its color etc.
-            GameObject instantiated = tilemap.GetInstantiatedObject(tileCoord);
+    //        //Due to the Asset settings, GameObject prefabs are generated along with the tiles. The prefab used is "Assets/LabelCanvas" 
+    //        //We can use references to the generated GameObject for the current tile to draw relevant information on it or change its color etc.
+    //        GameObject instantiated = tilemap.GetInstantiatedObject(tileCoord);
 
-            if (instantiated != null)
-            {
-                //Draw coordinates
-                instantiated.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = new Vector2Int(x, y).ToString();
-             //   instantiated.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 1, 0, 0.5f + Mathf.Sin(Time.time * 2) * 0.5f);
-            }
-        }
-    }
+    //        if (instantiated != null)
+    //        {
+    //            //Draw coordinates
+    //            instantiated.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = new Vector2Int(x, y).ToString();
+    //         //   instantiated.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 1, 0, 0.5f + Mathf.Sin(Time.time * 2) * 0.5f);
+    //        }
+    //    }
+    //}
 
-    void Update()
-    {
-        // Get the current dimensions of the tilemap
-        BoundsInt boundaries = tilemap.cellBounds;
+    //void Update()
+    //{
+    //    // Get the current dimensions of the tilemap
+    //    BoundsInt boundaries = tilemap.cellBounds;
 
-        //Iterate through each coordinate, by column, then by row, starting from 0,0 then 0,1, then 0,2 etc.
-        for (int x = boundaries.xMin; x < boundaries.xMax; x++)
-        {
-            for (int y = boundaries.yMin; y < boundaries.yMax; y++)
-            {
-                TileBase tile = GetTile(x, y);
-                if (tile == null)
-                {
-                    continue;
-                }
+    //    //Iterate through each coordinate, by column, then by row, starting from 0,0 then 0,1, then 0,2 etc.
+    //    for (int x = boundaries.xMin; x < boundaries.xMax; x++)
+    //    {
+    //        for (int y = boundaries.yMin; y < boundaries.yMax; y++)
+    //        {
+    //            TileBase tile = GetTile(x, y);
+    //            if (tile == null)
+    //            {
+    //                continue;
+    //            }
 
-               // DebugDrawTileConnections(x, y);
-                //DebugDrawTileInfo(x, y);
-            }
-        }
-    }
+    //           // DebugDrawTileConnections(x, y);
+    //            //DebugDrawTileInfo(x, y);
+    //        }
+    //    }
+    //}
 }
