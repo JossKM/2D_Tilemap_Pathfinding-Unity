@@ -1007,7 +1007,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65f4503d14a128f49b308522b814cdc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iterationDelay: 0.05
+  start: {x: 0, y: 0}
+  end: {x: 0, y: 0}
+  current: {x: 0, y: 0}
+  solution: []
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1158,51 +1161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df75334e81449d84e85e75a066199201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &560659533
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 560659535}
-  - component: {fileID: 560659534}
-  m_Layer: 0
-  m_Name: Scripts
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &560659534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560659533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65f4503d14a128f49b308522b814cdc1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  iterationDelay: 0.5
---- !u!4 &560659535
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560659533}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.073662, y: 7.028602, z: 0.036152225}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &588141718
 GameObject:
   m_ObjectHideFlags: 0
@@ -2781,8 +2739,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcc57d22c49a1fd4da68eb1f8b285556, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  start: {x: 0, y: 0}
-  end: {x: 0, y: 0}
   TextMeshGraphic: {fileID: 4616174668190767685}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -2794,4 +2750,3 @@ SceneRoots:
   - {fileID: 372736832}
   - {fileID: 1829101187}
   - {fileID: 8880594610283681889}
-  - {fileID: 560659535}

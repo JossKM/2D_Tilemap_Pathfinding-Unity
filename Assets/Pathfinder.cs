@@ -30,9 +30,9 @@ public class Pathfinder : MonoBehaviour
     private List<Vector2Int> visited;
     private Dictionary<Vector2Int, DijkstraNodeData> nodes; // All known nodes
 
-    public void UpdateBestWayToReachTile(Vector2Int origin, Vector2Int destination, float cost)
+    public void Awake()
     {
-        nodes[destination] = new DijkstraNodeData(origin, cost);
+        level = FindAnyObjectByType<TilemapGameLevel>();
     }
 
     public void SetAlgorithmDebuggingDelay(float delay)
@@ -45,14 +45,15 @@ public class Pathfinder : MonoBehaviour
         return unvisited.Contains(node) || visited.Contains(node);
     }
 
+    void MoveToVisitedSet(Vector2Int node)
+    {
+        unvisited.Remove(node);
+        visited.Add(node);
+    }
+
     public bool IsVisited(Vector2Int node)
     {
         return visited.Contains(node);
-    }
-
-    public void Awake()
-    {
-        level = FindAnyObjectByType<TilemapGameLevel>();
     }
 
     public float GetTotalCostToReach(Vector2Int node)
@@ -67,25 +68,26 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
+    public void UpdateBestWayToReachTile(Vector2Int origin, Vector2Int destination, float cost)
+    {
+        nodes[destination] = new DijkstraNodeData(origin, cost);
+    }
+
     /// <summary>
     /// Returns the cheapest node, and the total cost to reach it
     /// </summary>
     /// <returns></returns>
     public Tuple<Vector2Int, float> GetLowestCostInUnvisited()
     {
-        //Edge bestEdge = new Edge(Vector2Int.zero, Vector2Int.zero, float.PositiveInfinity);
         Vector2Int bestNode = new Vector2Int(int.MaxValue, int.MaxValue);
         float bestCost = float.PositiveInfinity;
 
         foreach (Vector2Int node in unvisited)
         {
-            if (nodes.ContainsKey(node))
+            if (GetTotalCostToReach(node) < bestCost)
             {
-                if (nodes[node].gCost < bestCost)
-                {
-                    bestCost = nodes[node].gCost;
-                    bestNode = node;
-                }
+                bestCost = GetTotalCostToReach(node);
+                bestNode = node;
             }
         }
 
@@ -102,16 +104,49 @@ public class Pathfinder : MonoBehaviour
         return IsSolved() || GetLowestCostInUnvisited().Item2 == float.PositiveInfinity;
     }
 
-    void MoveToVisitedSet(Vector2Int node)
-    {
-        unvisited.Remove(node);
-        visited.Add(node);
-    }
-
     internal void FindPathDebugging()
     {
         StopAllCoroutines();
         StartCoroutine(DijkstraSearchCoroutine(start, end));
+    }
+
+    public void DijkstraIteration()
+    {
+        //1. Get lowest cost in unvisited, set it as Current. We will visit this node
+        current = GetLowestCostInUnvisited().Item1;
+
+        //Log and draw a circle to see what we are doing
+        Debug.Log("Visiting: " + current + ", cost: " + nodes[current].gCost);
+        DebugDrawing.DrawCircle(level.GetTileCenter(current.x, current.y), Quaternion.AngleAxis(90, Vector3.forward), 0.6f, 16, Color.yellow, iterationDelay, false);
+
+        //2. For each node Connected which Current is connected to...
+        foreach (Vector2Int connected in level.GetTraversibleTilesAdjacentTo(current.x, current.y))
+        {
+            //  2.1 Calculate the cost to reach Connected from Current.
+            float costToReachConnected = nodes[current].gCost + level.GetCostToEnterTile(connected.x, connected.y);
+
+            //  2.2 If the cost is lower than any other known cost to reach Connected, or if we never recorded a cost at all (undiscovered) then...
+            if (!IsDiscovered(connected)) // New node! Add it to Unvisited set
+            {
+                //Newly discovered!
+                Debug.Log("Discovered: " + connected + ", cost: " + costToReachConnected);
+                unvisited.Add(connected);
+                
+                //2.2.1 ...enter the current cost to reach as its G-Cost.
+                UpdateBestWayToReachTile(current, connected, costToReachConnected);
+            }
+            else // We have already discovered this node, but do we have a better path to it?
+            {
+                if (costToReachConnected < nodes[connected].gCost) //If this new route is better, then...
+                {
+                    //replace because the new route is better
+                    UpdateBestWayToReachTile(current, connected, costToReachConnected);
+                }
+            }
+        }
+
+        //3. Finished exploring. Move current to the visited set.
+        MoveToVisitedSet(current);
     }
 
     public IEnumerator DijkstraSearchCoroutine(Vector2Int origin, Vector2Int destination)
@@ -119,61 +154,33 @@ public class Pathfinder : MonoBehaviour
         start = origin;
         end = destination;
         solution = new List<Vector2Int>();
-        nodes = new Dictionary<Vector2Int, DijkstraNodeData> ();
-        UpdateBestWayToReachTile(start, start, 0);
+        nodes = new Dictionary<Vector2Int, DijkstraNodeData>();
         unvisited = new List<Vector2Int> { start }; // Place Start in Unvisited set
         visited = new List<Vector2Int>(); // Visited set starts empty
+        UpdateBestWayToReachTile(start, start, 0);
 
         while (!IsComplete())
         {
-            current = GetLowestCostInUnvisited().Item1;
+            DijkstraIteration(); // Do an algorithm step...
 
-            Debug.Log("Visiting: " + current +", cost: " + nodes[current].gCost);
-
-
-            DebugDrawing.DrawCircle(level.GetTileCenter(current.x, current.y),  Quaternion.AngleAxis(90, Vector3.forward), 0.6f, 16, Color.yellow, iterationDelay, false);
-
-            foreach (Vector2Int connected in level.GetTraversibleTilesAdjacentTo(current.x, current.y))
-            {
-                float costToReachConnected = nodes[current].gCost + level.GetCostToEnterTile(connected.x, connected.y);
-
-                if(!IsDiscovered(connected)) // New node! Add it to Unvisited set
-                {
-                    //Newly discovered!
-                    Debug.Log("Discovered: " + connected + ", cost: " + costToReachConnected);
-                    unvisited.Add(connected);
-                    UpdateBestWayToReachTile(current, connected, costToReachConnected);
-                } else // We have already discovered this node, but do we have a better path to it?
-                {
-                    if (costToReachConnected < nodes[connected].gCost) //If this new route is better, then...
-                    {
-                        //replace because the new route is better
-                        UpdateBestWayToReachTile(current, connected, costToReachConnected);
-                    }
-                }
-            }
-
-            //Finished exploring. Move the node to Visited
-            MoveToVisitedSet(current);
-
-          //  DebugDrawDiscoveredRoutes(delay);
             yield return new WaitForSeconds(iterationDelay);
         }
 
         //Complete!
-        if(IsSolved())
+        if (IsSolved())
         {
             Debug.Log("Dijkstra's Algorithm Successful!");
             GenerateSolution();
-        } else
+        }
+        else
         {
             Debug.Log("Dijkstra's Algorithm Failed!");
         }
     }
-    
+
     void GenerateSolution()
     {
-        if(!IsSolved())
+        if (!IsSolved())
         {
             throw new Exception("Not solved! Cannot generate solution");
         }
@@ -218,7 +225,6 @@ public class Pathfinder : MonoBehaviour
             {
                 style.normal.textColor = new Color(0.05f, 0.05f, 0.05f, 1.0f);
 
-
                 foreach (KeyValuePair<Vector2Int, DijkstraNodeData> pair in nodes)
                 {
                     Vector2Int nodePos = pair.Key;
@@ -235,10 +241,9 @@ public class Pathfinder : MonoBehaviour
                     Handles.Label(nodePosWorldspace + Vector3.up * 0.4f, cost.ToString("f0"), style);
                 }
 
-
                 if (IsSolved())
                 {
-                        //Draw solution path
+                    //Draw solution path
                     foreach (var node in solution)
                     {
                         DebugDrawing.DrawCircle(level.GetTileCenter(node.x, node.y), Quaternion.AngleAxis(90, Vector3.forward), 0.4f, 3, Color.green, Time.deltaTime, false);
